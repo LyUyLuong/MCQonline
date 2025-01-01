@@ -26,4 +26,7 @@ public class ResultEntity extends BaseEntity {
     @Column(name = "complete_tine")
     private Date completeTine;
 
+    @Column(name = "type")
+    private String type;
+
 }

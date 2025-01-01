@@ -20,4 +20,6 @@ public class ResultDTO extends BaseEntity {
     private UserEntity userEntity;
 
     private TestEntity testEntity;
+
+    private String type;
 }

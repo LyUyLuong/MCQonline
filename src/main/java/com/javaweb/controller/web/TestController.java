@@ -43,7 +43,7 @@ public class TestController {
     @Autowired
     UserService userService;
 
-    @GetMapping(value="/test")
+    @GetMapping(value = "/test")
     public ModelAndView getAllTests() {
         ModelAndView mav = new ModelAndView("web/test");
 
@@ -53,7 +53,7 @@ public class TestController {
         return mav;
     }
 
-    @GetMapping(value="/test/{id}")
+    @GetMapping(value = "/test/{id}")
     public ModelAndView getOneTest(@PathVariable Long id) {
         ModelAndView mav = new ModelAndView("web/tests/detail");
 
@@ -61,11 +61,11 @@ public class TestController {
 
         List<PartTestEntity> partTestEntities = test.getPartTestEntities();
 
-        Map<PartTestEntity,List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
+        Map<PartTestEntity, List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
 
         for (PartTestEntity partTestEntity : partTestEntities) {
             List<QuestionTestEntity> qte = partTestEntity.getQuestions();
-            questionTestEntities.put(partTestEntity,qte);
+            questionTestEntities.put(partTestEntity, qte);
         }
 
         mav.addObject("test", test);
@@ -75,7 +75,7 @@ public class TestController {
         return mav;
     }
 
-    @GetMapping(value="/test/{id}/start")
+    @GetMapping(value = "/test/{id}/start")
     public ModelAndView doOneTest(@PathVariable Long id) {
         ModelAndView mav = new ModelAndView("web/tests/sheet");
 
@@ -83,52 +83,68 @@ public class TestController {
 
         List<PartTestEntity> partTestEntities = test.getPartTestEntities();
 
-        Map<PartTestEntity,List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
+        Map<PartTestEntity, List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
 
         for (PartTestEntity partTestEntity : partTestEntities) {
             List<QuestionTestEntity> qte = partTestEntity.getQuestions();
-            questionTestEntities.put(partTestEntity,qte);
+            questionTestEntities.put(partTestEntity, qte);
         }
+
+        String typeOfTest = "FULL";
 
 
         mav.addObject("test", test);
+        mav.addObject("typeOfTest", typeOfTest);
         mav.addObject("partTestEntities", partTestEntities);
         mav.addObject("questionTestEntities", questionTestEntities);
 
         return mav;
     }
 
-    @GetMapping(value="/test/{id}/practice")
-    public ModelAndView doPratice(@PathVariable Long id, @ModelAttribute(name = "part") List<String> part, HttpServletRequest request) {
+    @GetMapping(value = "/test/{id}/practice")
+    public ModelAndView doPratice(@PathVariable Long id,
+                                  @RequestParam(name = "part", required = false) List<String> part) {
         ModelAndView mav = new ModelAndView("web/tests/sheet");
 
+        // Lấy thông tin bài test
         TestDTO test = testService.getTestById(id);
 
+        // Lấy danh sách các phần (parts)
         List<PartTestEntity> partTestEntities = test.getPartTestEntities();
 
+        // Danh sách các phần được chọn
         List<PartTestEntity> getPartTestEntities = new ArrayList<>();
 
-        for(PartTestEntity pt : partTestEntities) {
-            for(String p : part) {
-                if(pt.getId().equals(Long.parseLong(p))) {
+        // Nếu không có phần nào được chọn, dùng tất cả các phần
+        if (part == null || part.isEmpty()) {
+            getPartTestEntities = partTestEntities;
+        } else {
+            for (PartTestEntity pt : partTestEntities) {
+                if (part.contains(pt.getId().toString())) {
                     getPartTestEntities.add(pt);
                 }
             }
         }
 
-        Map<PartTestEntity,List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
-
+        // Tạo danh sách câu hỏi dựa trên các phần đã chọn
+        Map<PartTestEntity, List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
         for (PartTestEntity partTestEntity : getPartTestEntities) {
             List<QuestionTestEntity> qte = partTestEntity.getQuestions();
-            questionTestEntities.put(partTestEntity,qte);
+            questionTestEntities.put(partTestEntity, qte);
         }
 
+        // Thiết lập kiểu bài test
+        String typeOfTest = "PARTS";
+
+        // Gắn dữ liệu vào ModelAndView
         mav.addObject("test", test);
+        mav.addObject("typeOfTest", typeOfTest);
         mav.addObject("partTestEntities", getPartTestEntities);
         mav.addObject("questionTestEntities", questionTestEntities);
 
         return mav;
     }
+
 
 //        TestDTO test = testService.getTestById(id);
 
@@ -147,7 +163,7 @@ public class TestController {
 //        mav.addObject("questionTestEntities", questionTestEntities);
 
 
-    @GetMapping(value="/test/{id}/result/{idresult}")
+    @GetMapping(value = "/test/{id}/result/{idresult}")
     public ModelAndView showOneTestResult(@PathVariable Long id, @PathVariable Long idresult) {
         ModelAndView mav = new ModelAndView("web/tests/result");
 
@@ -155,18 +171,23 @@ public class TestController {
         ResultEntity result = resultService.getOneResult(idresult);
         List<UserAnswerEntity> userAnswerEntities = userAnswerService.getUserAnswers(result);
 
+
         List<PartTestEntity> partTestEntities = test.getPartTestEntities();
         Map<PartTestEntity, List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
         List<AnswerEntity> userAnswerList = new ArrayList<>();
 
+        List<PartTestEntity> havePartTestEntities = new ArrayList<>();
+
         for (UserAnswerEntity userAnswer : userAnswerEntities) {
+            havePartTestEntities.add(userAnswer.getQuestionTestEntity().getPartTest());
             userAnswerList.add(userAnswer.getAnswerEntity());
         }
 
-        for (PartTestEntity partTestEntity : partTestEntities) {
+        for (PartTestEntity partTestEntity : havePartTestEntities) {
             List<QuestionTestEntity> qte = partTestEntity.getQuestions();
             questionTestEntities.put(partTestEntity, qte);
         }
+
 
         mav.addObject("test", test);
         mav.addObject("partTestEntities", partTestEntities);
@@ -189,7 +210,7 @@ public class TestController {
 
         UserDTO user = userService.findOneByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
         TestDTO test = testService.getTestById(testid);
-        
+
 
         if (user == null || test == null) {
             return ResponseEntity.notFound().build();

@@ -63,10 +63,11 @@ public class ResultService implements IResultService {
     public ResultEntity sumbitSheet(UserDTO userDTO, TestDTO testDTO,List<UserAnswerRaw> userAnswerList) {
 
         ResultEntity resultEntity = resultRepository.save(
-                resultConverter.toEntity(ResultDTO.builder()
-                .testEntity(testConverter.toEntity(testDTO))
-                .userEntity(userConverter.convertToEntity(userDTO))
-                .build()));
+                    resultConverter.toEntity(ResultDTO.builder()
+                    .testEntity(testConverter.toEntity(testDTO))
+                    .userEntity(userConverter.convertToEntity(userDTO))
+                            .type("FULL")
+                    .build()));
         resultEntity.setTestEntity(testConverter.toEntity(testDTO));
         resultEntity.setUserEntity(userConverter.convertToEntity(userDTO));
 

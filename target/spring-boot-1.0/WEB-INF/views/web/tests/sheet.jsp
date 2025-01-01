@@ -36,14 +36,14 @@
                            role="tab"
                            aria-controls="pills-${part.id}"
                            aria-selected="${status.first}">
-                            ${part.partName}
+                                ${part.partName}
                         </a>
                     </li>
                 </c:forEach>
             </ul>
 
             <!-- Tab Content -->
-            <form:form id="answerForm">
+            <form:form id="answerForm" method="post">
                 <div class="tab-content" id="pills-tabContent">
                     <!-- Global question counter -->
                     <c:set var="globalQuestionCounter" value="0" scope="page"/>
@@ -137,6 +137,18 @@
         startTimer(totalTimeInSeconds, display);
     };
 
+    // Lấy các tham số từ URL hiện tại
+    var params = new URLSearchParams(window.location.search);
+    var partValues = params.getAll("part"); // Lấy tất cả các giá trị của 'part'
+
+    // Nối các giá trị 'part' vào URL của action
+    var partQuery = partValues && partValues.length > 0
+        ? partValues.map(part => `part=`+part).join("&")
+        : "";
+
+    var actionUrl = `/test/${test.id}/finish?`+ partQuery;
+    $("#answerForm").attr("action", actionUrl);
+
     $("#submitAnswerForm").click(function (e) {
         e.preventDefault();
 
@@ -144,7 +156,6 @@
         var formElements = formData.elements;
         var userAnswers = []; // Array để chứa danh sách các câu trả lời
 
-        // Lấy các giá trị từ form
         for (var i = 0; i < formElements.length; i++) {
             var element = formElements[i];
             if (element.type === "radio" && element.checked) {
@@ -155,9 +166,10 @@
             }
         }
 
-        // Kiểm tra kết quả
-        console.log("Payload gửi đi:", JSON.stringify(userAnswers));
 
+
+        // Xử lý logic dựa trên typeOfTest
+        <c:if test="${typeOfTest == 'FULL'}">
         // Gửi danh sách JSON tới server
         var apiUrl = `/api/result/${test.id}`;
         $.ajax({
@@ -173,7 +185,26 @@
                 alert("Error: " + error.responseJSON.message);
             }
         });
+        </c:if>
+        <c:if test="${typeOfTest != 'FULL'}">
+
+        $.ajax({
+            url: actionUrl,
+            type: "POST",
+            data: JSON.stringify(userAnswers), // Gửi payload dưới dạng danh sách
+            contentType: "application/json",
+            success: function (response) {
+                console.log("Success:", response);
+            },
+            error: function (error) {
+                console.log("Error:", error.responseJSON);
+                alert("Error: " + error.responseJSON.message);
+            }
+        });
+        </c:if>
     });
+
+
 </script>
 </body>
 </html>

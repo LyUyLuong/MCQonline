@@ -38,16 +38,16 @@
                     <div class="row">
                         <c:forEach items="${questionTestEntities[part]}" var="question" varStatus="status">
                             <div class="col-md-6 mb-3 d-flex align-items-center">
-                                <!-- Increment global question counter -->
+
                                 <c:set var="globalQuestionCounter" value="${globalQuestionCounter + 1}"/>
 
                                 <div class="flex-grow-1">
-                                    <!-- Initialize variables -->
+
                                     <c:set var="correctAnswerMark" value=""/>
                                     <c:set var="userAnswerMark" value=""/>
                                     <c:set var="isCorrect" value="false"/>
 
-                                    <!-- Iterate through answerEntityList -->
+
                                     <c:forEach items="${question.answerEntityList}" var="answer">
                                         <c:if test="${answer.correct}">
                                             <c:set var="correctAnswerMark" value="${answer.mark}"/>

@@ -66,14 +66,12 @@
                                     <div class="tab-pane fade show active" id="practice" role="tabpanel"
                                          aria-labelledby="practice-tab">
                                         <div class="row">
-                                            <form:form id="formPractice" action="/test/${test.id}/practice"
-                                                       method="GET">
+                                            <form id="formPractice" action="/test/${test.id}/practice" method="GET">
                                                 <c:forEach items="${partTestEntities}" var="part">
                                                     <div class="col-12">
                                                         <div class="form-check mb-2">
                                                             <input class="form-check-input" type="checkbox"
-                                                                   id="part-${part.id}" name="part"
-                                                                   value="${part.id}">
+                                                                   id="part-${part.id}" value="${part.id}" name="part">
                                                             <label class="form-check-label" for="part-${part.id}">
                                                                     ${part.partName}
                                                             </label>
@@ -81,10 +79,10 @@
                                                     </div>
                                                 </c:forEach>
 
-                                                <button id="praticeButton" type="button" class="btn btn-primary">Bắt đầu
-                                                    thi
+                                                <button id="practiceButton" type="button" class="btn btn-primary">Bắt
+                                                    đầu thi
                                                 </button>
-                                            </form:form>
+                                            </form>
 
 
                                         </div>
@@ -139,27 +137,26 @@
 <script>
 
 
-    const praticeButton = document.getElementById('praticeButton');
-    praticeButton.addEventListener('click', () => {
+    const practiceButton = document.getElementById('practiceButton');
+    practiceButton.addEventListener('click', () => {
 
         const checkboxes = document.querySelectorAll('.form-check-input');
         const selectedParts = [];
 
         checkboxes.forEach(checkbox => {
             if (checkbox.checked) {
-                selectedParts.push(checkbox.value);
+                selectedParts.push(checkbox.id);
             }
         });
 
         if (selectedParts.length > 0) {
             // Convert selected parts list to a comma-separated string
-            document.querySelector('input[name="part"]').value = selectedParts.join(',');
+
             $(`#formPractice`).submit();
         } else {
             alert('Bạn chưa chọn phần nào!');
         }
     });
-
 
 
 </script>
