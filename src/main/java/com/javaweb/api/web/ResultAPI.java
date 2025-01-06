@@ -3,8 +3,10 @@ package com.javaweb.api.web;
 import com.javaweb.entity.ResultEntity;
 import com.javaweb.entity.UserAnswerEntity;
 import com.javaweb.entity.UserEntity;
+import com.javaweb.enums.TestType;
 import com.javaweb.model.dto.TestDTO;
 import com.javaweb.model.dto.UserDTO;
+import com.javaweb.model.raw.FormRaw;
 import com.javaweb.model.raw.UserAnswerRaw;
 import com.javaweb.service.impl.ResultService;
 import com.javaweb.service.impl.TestService;
@@ -20,8 +22,7 @@ import java.util.List;
 @RequestMapping("/api/result")
 public class ResultAPI {
 
-    @Autowired
-    UserService userService;
+
 
     @Autowired
     ResultService resultService;
@@ -29,22 +30,29 @@ public class ResultAPI {
     @Autowired
     TestService testService;
 
-    @PostMapping("/{testid}")
-    public ResponseEntity<String> submitSheet(@PathVariable Long testid, @RequestBody List<UserAnswerRaw> userAnswerList) {
 
-        if (testid == null || testid <= 0 || userAnswerList == null || userAnswerList.isEmpty()) {
+    @PostMapping("/{testid}")
+    public ResponseEntity<String> submitSheet(@PathVariable Long testid,
+                                              @RequestBody FormRaw form,
+                                              @RequestParam(value = "part", required = false) List<String> parts) {
+
+        if (testid == null || testid <= 0 || form.getUserAnswerRawList() == null || form.getUserAnswerRawList().isEmpty()) {
             return ResponseEntity.badRequest().body("Invalid data provided.");
         }
 
-        UserDTO user = userService.findOneByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
         TestDTO test = testService.getTestById(testid);
 
-        if (user == null || test == null) {
-            return ResponseEntity.notFound().build();
-        }
-        ResultEntity resultEntity = resultService.sumbitSheet(user, test, userAnswerList);
+        String testType = TestType.Full_Test.name();
 
-        return ResponseEntity.ok("Test submitted successfully.");
+        if (parts != null && !parts.isEmpty()) {
+            testType = TestType.Parts_Test.name();
+        }
+
+        ResultEntity resultEntity = resultService.sumbitSheet(test, form,testType);
+
+        String resultLink = String.format("/test/%d/result/%d", testid, resultEntity.getId());
+
+        return ResponseEntity.ok(resultLink);
     }
 }
 

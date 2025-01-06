@@ -45,6 +45,7 @@
             <!-- Tab Content -->
             <form:form id="answerForm" method="post">
                 <div class="tab-content" id="pills-tabContent">
+                    <input type="hidden" id="completeTime" name="completeTime" value="0">
                     <!-- Global question counter -->
                     <c:set var="globalQuestionCounter" value="0" scope="page"/>
 
@@ -108,13 +109,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 
 <script>
-    // Thời gian làm bài (ví dụ: 20 phút)
-    var totalTimeInSeconds = 20 * 60; // Thời gian 20 phút
+
+    var totalTimeInSeconds =${timeLimit} *60;
+    var completeTime = 0;
 
     function startTimer(duration, display) {
-        var timer = duration, minutes, seconds;
+        var timer = 0, minutes, seconds;
 
         var countdown = setInterval(function () {
+            completeTime = timer;
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
 
@@ -123,12 +126,19 @@
 
             display.textContent = minutes + ":" + seconds;
 
-            if (--timer < 0) {
+            if (++timer > duration) { // Nếu vượt quá thời gian đặt trước
                 clearInterval(countdown);
                 alert("Hết thời gian! Bài làm sẽ được nộp tự động.");
-                $("#submitAnswerForm").click(); // Tự động submit form khi hết giờ
+                submitFormWithElapsedTime(timer);
             }
         }, 1000);
+    }
+
+    function submitFormWithcompleteTime(actualcompleteTime) {
+        const hiddenInput = document.getElementById('completeTime');
+        hiddenInput.value = actualcompleteTime; // Cập nhật thời gian thực tế đã làm
+
+        $("#submitAnswerForm").submit(); // Tự động submit form
     }
 
     // Bắt đầu khi tải trang
@@ -137,23 +147,40 @@
         startTimer(totalTimeInSeconds, display);
     };
 
+    // Biến để kiểm tra trạng thái form
+    let isFormSubmitted = false;
+
+    // Gắn sự kiện trước khi rời trang
+    window.addEventListener('beforeunload', function (e) {
+        if (!isFormSubmitted) {
+            const confirmationMessage = "Bạn có chắc chắn muốn rời trang không? Những thay đổi của bạn sẽ không được lưu.";
+            e.preventDefault(); // Cần thiết cho trình duyệt cũ
+            e.returnValue = confirmationMessage; // Hiển thị thông báo
+            return confirmationMessage; // Hiển thị thông báo
+        }
+    });
+
+    // Khi form được submit, ngăn không hiển thị xác nhận nữa
+    $('#submitAnswerForm').on('submit', function () {
+        isFormSubmitted = true;
+    });
+
+
     // Lấy các tham số từ URL hiện tại
     var params = new URLSearchParams(window.location.search);
     var partValues = params.getAll("part"); // Lấy tất cả các giá trị của 'part'
 
     // Nối các giá trị 'part' vào URL của action
     var partQuery = partValues && partValues.length > 0
-        ? partValues.map(part => `part=`+part).join("&")
+        ? partValues.map(part => `part=` + part).join("&")
         : "";
-
-    var actionUrl = `/test/${test.id}/finish?`+ partQuery;
-    $("#answerForm").attr("action", actionUrl);
 
     $("#submitAnswerForm").click(function (e) {
         e.preventDefault();
 
         var formData = document.getElementById("answerForm");
         var formElements = formData.elements;
+
         var userAnswers = []; // Array để chứa danh sách các câu trả lời
 
         for (var i = 0; i < formElements.length; i++) {
@@ -166,42 +193,35 @@
             }
         }
 
+        const form = {
+            userAnswerRawList: userAnswers,
+            completeTime: completeTime
+        };
 
 
-        // Xử lý logic dựa trên typeOfTest
-        <c:if test="${typeOfTest == 'FULL'}">
-        // Gửi danh sách JSON tới server
-        var apiUrl = `/api/result/${test.id}`;
+
+        var typeOfTest = "${typeOfTest}";
+        var api = typeOfTest === 'FULL'
+            ? `/api/result/${test.id}`
+            : `/api/result/${test.id}?` + partQuery;
+
+
+
+        // console.log(apiPartsTestUrl)
         $.ajax({
-            url: apiUrl,
+            url: api,
             type: "POST",
-            data: JSON.stringify(userAnswers), // Gửi payload dưới dạng danh sách
+            data: JSON.stringify(form), // Gửi payload dưới dạng danh sách
             contentType: "application/json",
             success: function (response) {
-                console.log("Success:", response);
+                window.location.href = response;
             },
             error: function (error) {
                 console.log("Error:", error.responseJSON);
                 alert("Error: " + error.responseJSON.message);
             }
         });
-        </c:if>
-        <c:if test="${typeOfTest != 'FULL'}">
 
-        $.ajax({
-            url: actionUrl,
-            type: "POST",
-            data: JSON.stringify(userAnswers), // Gửi payload dưới dạng danh sách
-            contentType: "application/json",
-            success: function (response) {
-                console.log("Success:", response);
-            },
-            error: function (error) {
-                console.log("Error:", error.responseJSON);
-                alert("Error: " + error.responseJSON.message);
-            }
-        });
-        </c:if>
     });
 
 

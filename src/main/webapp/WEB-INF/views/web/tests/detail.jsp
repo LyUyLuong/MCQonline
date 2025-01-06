@@ -27,7 +27,7 @@
                             <div class="card-body">
                                 <h1 class="card-title">${test.name}</h1>
                                 <div class="mb-3 text-muted">
-                                    <p class="mb-1">⏱ Thời gian làm bài: 120 phút | 7 phần thi | 200 câu hỏi | 304 bình
+                                    <p class="mb-1">⏱ Thời gian làm bài: 120 phút | 7 phần thi
                                         luận</p>
                                     <p>👥 513,492 người đã luyện tập đề thi này</p>
                                     <p>${test.description}</p>
@@ -79,6 +79,20 @@
                                                     </div>
                                                 </c:forEach>
 
+                                                <div class="col-12 mb-3">
+                                                    <label for="time" class="form-label">Chọn thời gian làm
+                                                        bài:</label>
+                                                    <select class="form-select" id="time" name="time"
+                                                            required>
+                                                        <option value="" selected>-- Chọn thời gian --</option>
+                                                        <option value="120">120 phút (Đề nghị)</option>
+                                                        <option value="60">60 phút</option>
+                                                        <option value="30">30 phút</option>
+                                                        <option value="15">15 phút</option>
+
+                                                    </select>
+                                                </div>
+
                                                 <button id="practiceButton" type="button" class="btn btn-primary">Bắt
                                                     đầu thi
                                                 </button>
@@ -117,7 +131,7 @@
                             </div>
                             <hr>
                             <div class="mt-4">
-                                <a class="btn btn-sm btn-block btn-round btn-outline-secondary" href="/test">
+                                <a class="btn btn-sm btn-block btn-round btn-outline-secondary" href="/test/analytics">
                                     <i class="fa-solid fa-chart-simple"></i>
                                     Thống kê kết quả
                                 </a>
@@ -142,12 +156,16 @@
 
         const checkboxes = document.querySelectorAll('.form-check-input');
         const selectedParts = [];
+        const timeLimitSelect = document.getElementById('time');
 
         checkboxes.forEach(checkbox => {
             if (checkbox.checked) {
                 selectedParts.push(checkbox.id);
             }
         });
+        if (!timeLimitSelect.value || timeLimitSelect.value === "") {
+            timeLimitSelect.removeAttribute("name");
+        }
 
         if (selectedParts.length > 0) {
             // Convert selected parts list to a comma-separated string

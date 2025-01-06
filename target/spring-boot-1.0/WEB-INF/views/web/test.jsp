@@ -45,7 +45,7 @@
                             </div>
                             <hr>
                             <div class="mt-4">
-                                <a class="btn btn-sm btn-block btn-round btn-outline-secondary" href="/test">
+                                <a class="btn btn-sm btn-block btn-round btn-outline-secondary" href="/test/analytics">
                                     <i class="fa-solid fa-chart-simple"></i>
                                     Thống kê kết quả
                                 </a>

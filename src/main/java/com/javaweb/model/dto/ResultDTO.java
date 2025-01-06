@@ -10,6 +10,8 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Getter
@@ -22,4 +24,7 @@ public class ResultDTO extends BaseEntity {
     private TestEntity testEntity;
 
     private String type;
+
+    private Time completeTime;
+
 }

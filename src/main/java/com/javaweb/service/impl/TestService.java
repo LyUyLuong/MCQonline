@@ -38,4 +38,12 @@ public class TestService implements ITestService {
     public TestDTO getTestById(Long id) {
         return testConverter.toDTO(testRepository.findById(id).get());
     }
+
+    @Override
+    public List<TestDTO> haveanAlytics(){
+
+
+
+        return null;
+    }
 }

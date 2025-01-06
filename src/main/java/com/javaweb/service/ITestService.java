@@ -13,4 +13,6 @@ public interface ITestService {
 
     TestDTO getTestById(Long id);
 
+    List<TestDTO> haveanAlytics();
+
 }

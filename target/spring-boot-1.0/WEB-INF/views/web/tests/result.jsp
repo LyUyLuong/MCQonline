@@ -21,8 +21,9 @@
             <h3>${test.name}</h3>
             <p>${test.description}</p>
             <p><strong>User:</strong> ${result.userEntity.fullName}</p>
-            <p><strong>Score:</strong> ${result.score}</p>
-            <p><strong>Completed On:</strong> ${result.completeTine}</p>
+            <p><strong>Thời gian hoàn thành: </strong> ${result.completeTime}</p>
+            <p><strong>Listening: </strong> ${result.listeningPoint}/495</p>
+            <p><strong>Reading: </strong> ${result.readingPoint}/495</p>
         </div>
     </div>
 
@@ -32,7 +33,7 @@
         <c:forEach items="${partTestEntities}" var="part">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5>Part: ${part.partName} (${part.partType})</h5>
+                    <h5>${part.partName}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -109,7 +110,7 @@
 
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 package com.javaweb.controller.web;
 
 
+import com.javaweb.converter.UserConverter;
 import com.javaweb.entity.*;
 import com.javaweb.model.dto.TestDTO;
 import com.javaweb.model.dto.UserDTO;
@@ -42,6 +43,9 @@ public class TestController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserConverter userConverter;
 
     @GetMapping(value = "/test")
     public ModelAndView getAllTests() {
@@ -91,19 +95,22 @@ public class TestController {
         }
 
         String typeOfTest = "FULL";
+        Integer timeLimit = 120;
 
 
         mav.addObject("test", test);
         mav.addObject("typeOfTest", typeOfTest);
         mav.addObject("partTestEntities", partTestEntities);
         mav.addObject("questionTestEntities", questionTestEntities);
+        mav.addObject("timeLimit", timeLimit);
 
         return mav;
     }
 
     @GetMapping(value = "/test/{id}/practice")
     public ModelAndView doPratice(@PathVariable Long id,
-                                  @RequestParam(name = "part", required = false) List<String> part) {
+                                  @RequestParam(name = "part", required = false) List<String> part,
+                                  @RequestParam(name = "time", required = false) Long timeLimit  ) {
         ModelAndView mav = new ModelAndView("web/tests/sheet");
 
         // Lấy thông tin bài test
@@ -132,6 +139,9 @@ public class TestController {
             List<QuestionTestEntity> qte = partTestEntity.getQuestions();
             questionTestEntities.put(partTestEntity, qte);
         }
+        if(timeLimit == null){
+            timeLimit = 1L*120;
+        }
 
         // Thiết lập kiểu bài test
         String typeOfTest = "PARTS";
@@ -141,45 +151,48 @@ public class TestController {
         mav.addObject("typeOfTest", typeOfTest);
         mav.addObject("partTestEntities", getPartTestEntities);
         mav.addObject("questionTestEntities", questionTestEntities);
+        mav.addObject("timeLimit", timeLimit);
 
         return mav;
     }
 
 
-//        TestDTO test = testService.getTestById(id);
-
-//        List<PartTestEntity> partTestEntities = test.getPartTestEntities();
-
-//        Map<PartTestEntity,List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
-//
-//        for (PartTestEntity partTestEntity : partTestEntities) {
-//            List<QuestionTestEntity> qte = partTestEntity.getQuestions();
-//            questionTestEntities.put(partTestEntity,qte);
-//        }
-
-
-//        mav.addObject("test", test);
-//        mav.addObject("partTestEntities", partTestEntities);
-//        mav.addObject("questionTestEntities", questionTestEntities);
-
 
     @GetMapping(value = "/test/{id}/result/{idresult}")
     public ModelAndView showOneTestResult(@PathVariable Long id, @PathVariable Long idresult) {
+
+        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+
+
         ModelAndView mav = new ModelAndView("web/tests/result");
 
         TestDTO test = testService.getTestById(id);
         ResultEntity result = resultService.getOneResult(idresult);
+        if (result == null) {
+            return new ModelAndView("/web/errors/NotFound");
+        }
+
+        String testBelongTo = result.getUserEntity().getUserName();
+        if (!currentUser.equals(testBelongTo)) {
+            return new ModelAndView("/web/errors/NotFound");
+        }
+
+
+
         List<UserAnswerEntity> userAnswerEntities = userAnswerService.getUserAnswers(result);
 
 
-        List<PartTestEntity> partTestEntities = test.getPartTestEntities();
         Map<PartTestEntity, List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
         List<AnswerEntity> userAnswerList = new ArrayList<>();
 
         List<PartTestEntity> havePartTestEntities = new ArrayList<>();
 
         for (UserAnswerEntity userAnswer : userAnswerEntities) {
-            havePartTestEntities.add(userAnswer.getQuestionTestEntity().getPartTest());
+            PartTestEntity partTestEntity = userAnswer.getQuestionTestEntity().getPartTest();
+            if(!havePartTestEntities.contains(partTestEntity)) {
+                havePartTestEntities.add(partTestEntity);
+            }
+
             userAnswerList.add(userAnswer.getAnswerEntity());
         }
 
@@ -190,7 +203,7 @@ public class TestController {
 
 
         mav.addObject("test", test);
-        mav.addObject("partTestEntities", partTestEntities);
+        mav.addObject("partTestEntities", havePartTestEntities);
         mav.addObject("questionTestEntities", questionTestEntities);
         mav.addObject("userAnswerList", userAnswerList); // Precomputed user answers
         mav.addObject("result", result);
@@ -198,26 +211,30 @@ public class TestController {
         return mav;
     }
 
+    @GetMapping(value = "/test/analytics")
+    public ModelAndView haveAnalytics() {
+        ModelAndView mav = new ModelAndView("web/tests/analytics");
 
-    @PostMapping("/test/{testid}/finish")
-    public ResponseEntity<String> submitSheet(@PathVariable Long testid,
-                                              @RequestParam("part") List<String> parts,
-                                              @RequestBody List<UserAnswerRaw> userAnswerList) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDTO user = userService.findOneByUserName(userName);
+        List<ResultEntity> resultEntities = resultService.getAllResultsByUserEntity(userConverter.convertToEntity(user));
 
-        if (testid == null || testid <= 0 || userAnswerList == null || userAnswerList.isEmpty()) {
-            return ResponseEntity.badRequest().body("Invalid data provided.");
+        Map<ResultEntity, List<PartTestEntity>> userAnswerEntitiesMap = new HashMap<>();
+        for (ResultEntity resultEntity : resultEntities) {
+
+            List<UserAnswerEntity> userAnswerEntities = userAnswerService.getUserAnswers(resultEntity);
+            List<PartTestEntity> havePartTestEntities = new ArrayList<>();
+            for (UserAnswerEntity userAnswerEntity : userAnswerEntities) {
+                PartTestEntity partTestEntity = userAnswerEntity.getQuestionTestEntity().getPartTest();
+                havePartTestEntities.add(partTestEntity);
+            }
+            userAnswerEntitiesMap.put(resultEntity, havePartTestEntities);
         }
 
-        UserDTO user = userService.findOneByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
-        TestDTO test = testService.getTestById(testid);
-
-
-        if (user == null || test == null) {
-            return ResponseEntity.notFound().build();
-        }
-        ResultEntity resultEntity = resultService.sumbitSheet(user, test, userAnswerList);
-
-        return ResponseEntity.ok("Test submitted successfully.");
+        mav.addObject("resultEntities", resultEntities);
+        mav.addObject("userAnswerEntitiesMap", userAnswerEntitiesMap);
+        return mav;
     }
+
 
 }
