@@ -6,7 +6,7 @@
     <div class="footer-inner">
         <div class="footer-content">
 						<span class="bigger-120">
-							<span class="blue bolder">DEVNGUYEN.com</span>
+							<span class="blue bolder">Study4.com</span>
 						</span>
 
             &nbsp; &nbsp;

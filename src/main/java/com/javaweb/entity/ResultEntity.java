@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -39,5 +40,8 @@ public class ResultEntity extends BaseEntity {
 
     @Column(name = "type")
     private String type;
+
+    @OneToMany(mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResultHavePartsEntity> resultHaveParts;
 
 }

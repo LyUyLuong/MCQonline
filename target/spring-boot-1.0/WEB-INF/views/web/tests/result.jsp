@@ -37,7 +37,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <c:forEach items="${questionTestEntities[part]}" var="question" varStatus="status">
+                        <c:forEach items="${part.questions}" var="question" varStatus="status">
                             <div class="col-md-6 mb-3 d-flex align-items-center">
 
                                 <c:set var="globalQuestionCounter" value="${globalQuestionCounter + 1}"/>
@@ -79,6 +79,8 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                             </div>
+
+
                                             <div>
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                      width="25"
@@ -92,7 +94,10 @@
                     'M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708'}"/>
                                                 </svg>
                                             </div>
-                                            <a>[Chi tiết]</a>
+                                            <button class="btn btn-sm btn-link p-0 text-decoration-none"
+                                                    onclick="loadQuestionDetail(${question.id},${result.id})">Chi tiết
+                                            </button>
+
 
                                         </div>
                                     </div>
@@ -107,10 +112,90 @@
         </c:forEach>
     </div>
 
+    <div class="modal fade" id="detailQuestionModal" tabindex="-1" aria-labelledby="detailQuestionModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailQuestionModalLabel">Chi tiết câu hỏi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="question-context"></div>
+                    <div id="question-answers"></div>
+                    <div id="question-answers-details"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+<script>
+    const loadQuestionDetail = (questionId, resultId) => {
+        $.ajax({
+            url: '/api/questions/' + questionId + '/result/' + resultId,
+            type: "GET",
+            success: function (response) {
+                console.log(response);
+
+                // Hiển thị nội dung câu hỏi
+                const questionContext = '<p>' + response.questionTestDTO.content + '</p>';
+                document.getElementById('question-context').innerHTML = questionContext;
+
+                // Hiển thị danh sách câu trả lời
+                let answersHtml = '';
+                response.answers.forEach(function (answer) {
+                    let answerStyle = '';
+                    if (response.userAnswer && response.userAnswer.content === answer.content) {
+                        answerStyle = 'font-weight: bold; color:black; background: red;';
+                    } else if (answer.correct) {
+                        answerStyle = 'font-weight: bold; color:black; background: green;';
+                    }
+
+                    const isChecked = (response.userAnswer && response.userAnswer.content === answer.content) ? 'checked' : '';
+
+                    answersHtml += '<div class="form-check">' +
+                        '<input class="form-check-input" type="radio" disabled ' + isChecked + ' style="' + answerStyle + '">' +
+                        '<label class="form-check-label" style="' + answerStyle + '">' +
+                        answer.content +
+                        '</label>' +
+                        '</div>';
+                });
+                document.getElementById('question-answers').innerHTML = answersHtml;
+
+                // Hiển thị chi tiết khác
+                let correctAnswer = "Không có";
+                response.answers.forEach(function (answer) {
+                    if (answer.correct) {
+                        correctAnswer = answer.content;
+                    }
+                });
+
+                let userAnswer = "Không lựa chọn";
+                if (response.userAnswer && response.userAnswer.content) {
+                    userAnswer = response.userAnswer.content;
+                }
+
+                const detailsHtml =
+                    '<p><strong>Đáp án đúng:</strong> ' + correctAnswer + '</p>' +
+                    '<p><strong>Câu trả lời của bạn:</strong> ' + userAnswer + '</p>';
+                document.getElementById('question-answers-details').innerHTML = detailsHtml;
+
+                // Hiển thị modal
+                const modal = new bootstrap.Modal(document.getElementById('detailQuestionModal'));
+                modal.show();
+            },
+            error: function () {
+                alert("Không thể tải thông tin câu hỏi. Vui lòng thử lại!");
+            }
+        });
+    };
+</script>
+
+
+
 </body>
 </html>

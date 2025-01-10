@@ -11,6 +11,7 @@
     <script type='text/javascript' src="assets/js/ace-extra.min.js"></script>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<link href="${pageContext.request.contextPath}/admin/css/style.css" rel="stylesheet" type="text/css">
 
 	<!-- jquery -->
 	<script type='text/javascript' src="js/2.1.4/jquery.min.js"></script>

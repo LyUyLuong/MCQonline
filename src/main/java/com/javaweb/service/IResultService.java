@@ -15,6 +15,6 @@ public interface IResultService {
     List<ResultEntity> getAllResultsByUserEntity(UserEntity userEntityserId);
     ResultEntity getOneResult(Long id);
     ResultEntity createOrUpdateResultEntity(ResultEntity resultEntity);
-    ResultEntity sumbitSheet(TestDTO testDTO, FormRaw form, String typeTest);
+    ResultEntity sumbitSheet(TestDTO testDTO, FormRaw form, List<String> parts);
     List<ResultEntity> getAllResultsByUserEntityAndId(UserEntity user,Long id);
 }

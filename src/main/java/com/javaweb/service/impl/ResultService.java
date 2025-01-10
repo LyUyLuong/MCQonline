@@ -4,15 +4,20 @@ import com.javaweb.converter.ResultConverter;
 import com.javaweb.converter.TestConverter;
 import com.javaweb.converter.UserConverter;
 import com.javaweb.entity.*;
+import com.javaweb.enums.TestType;
 import com.javaweb.model.dto.ResultDTO;
 import com.javaweb.model.dto.TestDTO;
 import com.javaweb.model.dto.UserDTO;
 import com.javaweb.model.raw.FormRaw;
 import com.javaweb.model.raw.UserAnswerRaw;
+import com.javaweb.repository.PartTestRepository;
+import com.javaweb.repository.ResultHavePartsRepository;
 import com.javaweb.repository.ResultRepository;
 import com.javaweb.repository.UserAnswerRepository;
 import com.javaweb.service.IResultService;
+import com.javaweb.utils.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +54,12 @@ public class ResultService implements IResultService {
     @Autowired
     UserService userService;
 
+    @Autowired
+    PartTestRepository partTestRepository;
+
+    @Autowired
+    ResultHavePartsRepository resultHavePartsRepository;
+
     @Override
     public List<ResultEntity> getAllResultsByUserEntity (UserEntity userEntity) {
         return resultRepository.findAllByUserEntity(userEntity);
@@ -67,24 +78,24 @@ public class ResultService implements IResultService {
     @Override
     public ResultEntity sumbitSheet(TestDTO testDTO,
                                     FormRaw form,
-                                    String typeTest) {
+                                    List<String> parts) {
         UserDTO userDTO = userService.findOneByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
 
         List<UserAnswerRaw> userAnswerList = form.getUserAnswerRawList();
-//        System.out.println(Time.valueOf(form.getCompleteTime()));
 
-        Integer hours = Integer.valueOf(form.getCompleteTime()) / 3600;
-        Integer minutes = Integer.valueOf(form.getCompleteTime()) / 60;
-        Integer seconds = Integer.valueOf(form.getCompleteTime()) % 60;
 
-        Time time = Time.valueOf(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+        String testType = TestType.Full_Test.name();
+
+        if (parts != null && !parts.isEmpty()) {
+            testType = TestType.Parts_Test.name();
+        }
 
         ResultEntity resultEntity = resultRepository.save(
                     resultConverter.toEntity(ResultDTO.builder()
                     .testEntity(testConverter.toEntity(testDTO))
                     .userEntity(userConverter.convertToEntity(userDTO))
-                    .completeTime(time)
-                            .type(typeTest)
+                    .completeTime(TimeUtils.convertToTIme(form))
+                    .type(testType)
                     .build()));
 
         List<UserAnswerEntity> userAnswerEntities = new ArrayList<>();
@@ -143,11 +154,35 @@ public class ResultService implements IResultService {
         resultEntity.setListeningCorrectAnswer(listeningCorrectAnswer);
         resultEntity.setReadingCorrectAnswer(readingCorrectAnswer);
 
+        List<ResultHavePartsEntity> resultHavePartsEntities = new ArrayList<>();
+        if (parts != null && !parts.isEmpty()) {
+            for (String partId : parts) {
+                PartTestEntity partTestEntity = partTestRepository.findById(Long.parseLong(partId))
+                        .orElseThrow(() -> new IllegalArgumentException("Part not found with id: " + partId));
+
+                ResultHavePartsEntity resultHavePartsEntity = new ResultHavePartsEntity();
+                resultHavePartsEntity.setResult(resultEntity);
+                resultHavePartsEntity.setPartTest(partTestEntity);
+
+                resultHavePartsEntities.add(resultHavePartsEntity);
+            }
+        }
+        else {
+            for(PartTestEntity partTestEntity : testDTO.getPartTestEntities()){
+                ResultHavePartsEntity resultHavePartsEntity = new ResultHavePartsEntity();
+                resultHavePartsEntity.setResult(resultEntity);
+                resultHavePartsEntity.setPartTest(partTestEntity);
+
+                resultHavePartsEntities.add(resultHavePartsEntity);
+            }
+        }
+        resultHavePartsRepository.saveAll(resultHavePartsEntities);
+
 
         userAnswerRepository.saveAll(userAnswerEntities);
 
         return resultEntity;
-//        return new ResultEntity();
+
     }
 
     @Override

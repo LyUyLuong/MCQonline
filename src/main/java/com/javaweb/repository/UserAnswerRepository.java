@@ -10,4 +10,5 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswerEntity,Lon
 
     List<UserAnswerEntity> findAllByResultEntity(ResultEntity resultEntity);
 
+    UserAnswerEntity findByQuestionTestEntity_IdAndResultEntity_Id(Long questionId, Long resultId);
 }

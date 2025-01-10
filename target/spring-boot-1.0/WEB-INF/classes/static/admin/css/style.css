@@ -1,0 +1,21 @@
+.custom-navbar {
+    background-color: #333 !important; /* Màu nền đen xám */
+    color: #fff !important;           /* Chữ màu trắng */
+}
+.custom-navbar a {
+    color: #fff !important;           /* Chữ trong các liên kết */
+}
+.custom-navbar a:hover {
+    color: #f0ad4e !important;        /* Màu cam khi hover */
+}
+.custom-dropdown-menu {
+    background-color: #444 !important; /* Nền xám đậm */
+    color: #fff !important;            /* Chữ trắng */
+}
+.custom-dropdown-menu a {
+    color: #fff !important;           /* Chữ trong menu */
+}
+.custom-dropdown-menu a:hover {
+    background-color: #f0ad4e !important; /* Nền cam khi hover */
+    color: #000 !important;               /* Chữ đen khi hover */
+}

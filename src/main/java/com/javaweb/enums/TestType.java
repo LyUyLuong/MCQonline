@@ -5,8 +5,8 @@ import java.util.Map;
 
 public enum TestType {
 
-    Full_Test("Full Test"),
-    Parts_Test("Parts Test");
+    Full_Test("Full_Test"),
+    Parts_Test("Parts_Test");
 
     private final String testName;
 

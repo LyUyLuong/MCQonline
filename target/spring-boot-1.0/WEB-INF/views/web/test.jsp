@@ -75,7 +75,7 @@
                                                 content.</p>
                                         </a>
                                         <div class="mt-4">
-                                            <a href="/test/${item.id}" class="btn btn-primary">Go somewhere</a>
+                                            <a href="/test/${item.id}" class="btn btn-primary">Tới trang đề thi</a>
                                         </div>
                                     </div>
                                 </div>

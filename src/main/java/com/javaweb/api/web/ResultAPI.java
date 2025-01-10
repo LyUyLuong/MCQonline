@@ -42,13 +42,7 @@ public class ResultAPI {
 
         TestDTO test = testService.getTestById(testid);
 
-        String testType = TestType.Full_Test.name();
-
-        if (parts != null && !parts.isEmpty()) {
-            testType = TestType.Parts_Test.name();
-        }
-
-        ResultEntity resultEntity = resultService.sumbitSheet(test, form,testType);
+        ResultEntity resultEntity = resultService.sumbitSheet(test, form,parts);
 
         String resultLink = String.format("/test/%d/result/%d", testid, resultEntity.getId());
 

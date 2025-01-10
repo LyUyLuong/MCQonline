@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class TestDTO {
+public class TestDTO extends AbstractDTO {
 
     private Long id;
 
@@ -21,5 +21,9 @@ public class TestDTO {
     private List<PartTestEntity> partTestEntities;
 
     private List<ResultEntity> resultEntities;
+
+    private Long numberOfParticipants;
+
+    private Integer status;
 
 }

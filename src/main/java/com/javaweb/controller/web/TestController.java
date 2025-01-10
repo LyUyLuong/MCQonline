@@ -3,6 +3,7 @@ package com.javaweb.controller.web;
 
 import com.javaweb.converter.UserConverter;
 import com.javaweb.entity.*;
+import com.javaweb.enums.TestType;
 import com.javaweb.model.dto.TestDTO;
 import com.javaweb.model.dto.UserDTO;
 import com.javaweb.model.raw.UserAnswerRaw;
@@ -110,7 +111,7 @@ public class TestController {
     @GetMapping(value = "/test/{id}/practice")
     public ModelAndView doPratice(@PathVariable Long id,
                                   @RequestParam(name = "part", required = false) List<String> part,
-                                  @RequestParam(name = "time", required = false) Long timeLimit  ) {
+                                  @RequestParam(name = "time", required = false) Long timeLimit) {
         ModelAndView mav = new ModelAndView("web/tests/sheet");
 
         // Lấy thông tin bài test
@@ -139,8 +140,8 @@ public class TestController {
             List<QuestionTestEntity> qte = partTestEntity.getQuestions();
             questionTestEntities.put(partTestEntity, qte);
         }
-        if(timeLimit == null){
-            timeLimit = 1L*120;
+        if (timeLimit == null) {
+            timeLimit = 1L * 120;
         }
 
         // Thiết lập kiểu bài test
@@ -155,7 +156,6 @@ public class TestController {
 
         return mav;
     }
-
 
 
     @GetMapping(value = "/test/{id}/result/{idresult}")
@@ -177,8 +177,6 @@ public class TestController {
             return new ModelAndView("/web/errors/NotFound");
         }
 
-
-
         List<UserAnswerEntity> userAnswerEntities = userAnswerService.getUserAnswers(result);
 
 
@@ -187,12 +185,15 @@ public class TestController {
 
         List<PartTestEntity> havePartTestEntities = new ArrayList<>();
 
-        for (UserAnswerEntity userAnswer : userAnswerEntities) {
-            PartTestEntity partTestEntity = userAnswer.getQuestionTestEntity().getPartTest();
-            if(!havePartTestEntities.contains(partTestEntity)) {
-                havePartTestEntities.add(partTestEntity);
-            }
 
+
+        List<ResultHavePartsEntity> resultHavePartsEntities = result.getResultHaveParts();
+
+        for(ResultHavePartsEntity havePartsEntity : resultHavePartsEntities) {
+            havePartTestEntities.add(havePartsEntity.getPartTest());
+        }
+
+        for (UserAnswerEntity userAnswer : userAnswerEntities) {
             userAnswerList.add(userAnswer.getAnswerEntity());
         }
 
@@ -204,7 +205,6 @@ public class TestController {
 
         mav.addObject("test", test);
         mav.addObject("partTestEntities", havePartTestEntities);
-        mav.addObject("questionTestEntities", questionTestEntities);
         mav.addObject("userAnswerList", userAnswerList); // Precomputed user answers
         mav.addObject("result", result);
 
@@ -220,18 +220,31 @@ public class TestController {
         List<ResultEntity> resultEntities = resultService.getAllResultsByUserEntity(userConverter.convertToEntity(user));
 
         Map<ResultEntity, List<PartTestEntity>> userAnswerEntitiesMap = new HashMap<>();
-        for (ResultEntity resultEntity : resultEntities) {
+        Map<Long, Integer> totalPointResult = new HashMap<>();
+        Map<Long, Integer> totalQuestionResult = new HashMap<>();
 
-            List<UserAnswerEntity> userAnswerEntities = userAnswerService.getUserAnswers(resultEntity);
+        for (ResultEntity resultEntity : resultEntities) {
+            List<ResultHavePartsEntity> resultHavePartsEntities = resultEntity.getResultHaveParts();
+            int totalScore = 0;
+            int totalQuestion = 0;
             List<PartTestEntity> havePartTestEntities = new ArrayList<>();
-            for (UserAnswerEntity userAnswerEntity : userAnswerEntities) {
-                PartTestEntity partTestEntity = userAnswerEntity.getQuestionTestEntity().getPartTest();
+
+            for (ResultHavePartsEntity resultHavePartsEntity : resultHavePartsEntities) {
+                PartTestEntity partTestEntity = resultHavePartsEntity.getPartTest();
                 havePartTestEntities.add(partTestEntity);
+                totalQuestion += partTestEntity.getQuestions().size();
             }
             userAnswerEntitiesMap.put(resultEntity, havePartTestEntities);
+            totalScore = resultEntity.getReadingPoint() + resultEntity.getListeningPoint();
+
+            totalPointResult.put(resultEntity.getId(), totalScore);
+            totalQuestionResult.put(resultEntity.getId(), totalQuestion);
         }
+        resultEntities.sort((r1, r2) -> r2.getCreatedDate().compareTo(r1.getCreatedDate()));
 
         mav.addObject("resultEntities", resultEntities);
+        mav.addObject("totalPointResult", totalPointResult);
+        mav.addObject("totalQuestionResult", totalQuestionResult);
         mav.addObject("userAnswerEntitiesMap", userAnswerEntitiesMap);
         return mav;
     }

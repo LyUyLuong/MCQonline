@@ -1,5 +1,6 @@
 package com.javaweb.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,7 @@ public class QuestionTestEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "part_id", nullable = false)
+    @JsonBackReference
     private PartTestEntity partTest;
 
     @OneToMany(mappedBy = "questionTestEntity", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -14,6 +14,7 @@
     <title>Thống kê kết quả</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
 </head>
 <body>
 <div class="container mt-4">
@@ -48,12 +49,25 @@
                         <p><strong>${resultEntities.size()}</strong> đề thi</p>
                     </div>
                 </div>
+                <c:set var="totalHours" value="0"/>
+                <c:set var="totalMinutes" value="0"/>
+                <c:set var="totalSeconds" value="0"/>
+
+
+                <c:forEach var="result" items="${resultEntities}">
+                    <c:set var="totalHours" value="${totalHours + result.completeTime.hours}"/>
+                    <c:set var="totalMinutes" value="${totalMinutes + result.completeTime.minutes}"/>
+                    <c:set var="totalSeconds" value="${totalSeconds + result.completeTime.seconds}"/>
+                </c:forEach>
+
                 <div class="col-md-4">
                     <div class="border rounded p-3 text-center">
-                        <h5>Thời gian luyện thi</h5>
-                        <p><strong>69</strong> phút</p>
+                        <h5>Tổng thời gian luyện thi</h5>
+                        <p><strong>${totalHours} : ${totalMinutes} : ${totalSeconds}</strong> phút</p>
                     </div>
                 </div>
+
+
                 <div class="col-md-4">
                     <div class="border rounded p-3 text-center">
                         <h5>Điểm mục tiêu</h5>
@@ -117,7 +131,7 @@
 
             <!-- Danh sách đề thi -->
             <h3 class="mt-5">Danh sách đề thi đã làm:</h3>
-            <table class="table table-bordered">
+            <table class="table table-striped table-hover table-bordered align-middle">
                 <thead class="thead-light">
                 <tr>
                     <th>Ngày làm</th>
@@ -131,26 +145,41 @@
                 <c:forEach var="result" items="${resultEntities}">
                     <tr>
                         <td>${result.createdDate}</td>
-                        <td>${result.testEntity.name}<br>
-                            <span class="badge badge-warning">${result.type}</span>
-                            <c:if test="${result.type == 'Parts_Test'}">
-                                <span class="badge badge-warning">Luyện tập</span>
-                                <c:forEach var="part" items="${userAnswerEntitiesMap[result]}">
-                                    <p>${part.partName}</p>
+                        <c:if test="${result.type == 'Parts_Test'}">
+                            <td>
+                                    ${result.testEntity.name}<br>
+                                <span class="result-badge-practice">${result.type}</span>
+                                <c:forEach var="part" items="${result.resultHaveParts}">
+                                    <p class="result-badge-practice">${part.partTest.partName}</p>
                                 </c:forEach>
-                            </c:if>
-                            <c:if test="${result.type == 'Full_Test'}">
-                                <span class="badge badge-warning">Full test</span>
-                            </c:if>
+                            </td>
+                            <td>${result.listeningCorrectAnswer + result.readingCorrectAnswer}/${totalQuestionResult[result.id]}</td>
+                        </c:if>
+                        <c:if test="${result.type == 'Full_Test'}">
+                            <td>
+                                    ${result.testEntity.name}<br>
+                                <span class="result-badge-full">${result.type}</span>
 
-                        </td>
+                            </td>
+                            <td>${result.listeningCorrectAnswer + result.readingCorrectAnswer}/${totalQuestionResult[result.id]}
+                                (Điểm: ${totalPointResult[result.id]})
+                            </td>
+                        </c:if>
                         <td>${result.completeTime}</td>
-                        <td><a href="/test/${result.testEntity.id}/result/${result.id}" class="text-primary">Xem chi tiết</a>
+                        <td>
+                            <a href="/test/${result.testEntity.id}/result/${result.id}"
+                               class="btn btn-outline-primary btn-sm">
+                                Xem chi tiết
+                            </a>
                         </td>
                     </tr>
                 </c:forEach>
                 </tbody>
             </table>
+            <div class="text-end">
+                <a href="#" class="text-primary">Xem tất cả &gt;&gt;</a>
+            </div>
+
         </div>
 
         <!-- Phần 3 -->
@@ -174,7 +203,8 @@
 
 <!-- Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

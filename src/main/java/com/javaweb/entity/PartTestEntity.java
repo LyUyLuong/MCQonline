@@ -1,6 +1,8 @@
 package com.javaweb.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,9 +23,14 @@ public class PartTestEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_id", nullable = false)
+    @JsonIgnore
     private TestEntity testEntity;
 
     @OneToMany(mappedBy = "partTest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<QuestionTestEntity> questions;
+
+    @OneToMany(mappedBy = "partTest", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResultHavePartsEntity> resultHaveParts;
 
 }
