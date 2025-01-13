@@ -7,12 +7,14 @@ import com.javaweb.model.dto.TestDTO;
 import com.javaweb.model.request.TestSearchRequest;
 import com.javaweb.model.response.TestSearchResponse;
 import com.javaweb.security.utils.SecurityUtils;
+import com.javaweb.service.impl.PartTestService;
 import com.javaweb.service.impl.TestService;
 import com.javaweb.utils.DisplayTagUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,6 +27,9 @@ public class TestController {
 
     @Autowired
     TestService testService;
+
+    @Autowired
+    PartTestService partTestService;
 
     @GetMapping("/admin/test-list")
     private ModelAndView testList(@ModelAttribute(name = "modelSearch") TestSearchRequest params,
@@ -58,12 +63,22 @@ public class TestController {
 
     @GetMapping("/admin/test-create")
     private ModelAndView testCreate(@ModelAttribute(name = "testEdit") TestDTO testDTO) {
-        ModelAndView modelAndView = new ModelAndView("admin/tests/edit");
+        ModelAndView modelAndView = new ModelAndView("/admin/tests/create");
+
+        List<PartTestEntity> partTests = partTestService.findAllByTestEntityIsNull();
+        modelAndView.addObject("partTests", partTests);
+        return modelAndView;
+    }
+
+    @GetMapping("/admin/test-edit-{id}")
+    private ModelAndView testCreate(@PathVariable Long id) {
+        ModelAndView modelAndView = new ModelAndView("/admin/tests/edit");
 
         List<PartTestEntity> partTests = new ArrayList<>();
         modelAndView.addObject("partTests", partTests);
         return modelAndView;
     }
+
 
 
 }

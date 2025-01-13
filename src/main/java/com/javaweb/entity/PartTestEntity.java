@@ -15,14 +15,14 @@ import java.util.List;
 @Table(name = "part_test")
 public class PartTestEntity extends BaseEntity {
 
-    @Column(name = "part_type")
+    @Column(name = "part_type", nullable = false)
     private String partType;
 
-    @Column(name = "part_name")
+    @Column(name = "part_name", nullable = false)
     private String partName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "test_id", nullable = false)
+    @JoinColumn(name = "test_id", nullable = true)
     @JsonIgnore
     private TestEntity testEntity;
 

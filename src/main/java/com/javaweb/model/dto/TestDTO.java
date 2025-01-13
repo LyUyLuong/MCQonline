@@ -18,7 +18,7 @@ public class TestDTO extends AbstractDTO {
 
     private String description;
 
-    private List<PartTestEntity> partTestEntities;
+    private List<PartTestDTO> partTestEntities;
 
     private List<ResultEntity> resultEntities;
 

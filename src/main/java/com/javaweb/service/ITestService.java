@@ -7,6 +7,7 @@ import com.javaweb.model.response.TestSearchResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Service
@@ -20,4 +21,6 @@ public interface ITestService {
 
     int countTotalItems(TestSearchRequest params);
     List<TestSearchResponse> findAll(TestSearchRequest params, PageRequest pageable);
+
+    TestEntity createOrUpdateTest(TestEntity testEntity);
 }

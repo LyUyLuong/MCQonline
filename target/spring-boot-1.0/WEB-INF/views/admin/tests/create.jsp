@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
@@ -66,21 +66,25 @@
                     </div>
 
                     <!-- Phần này dành cho PartTestEntity -->
-                    <div class="form-group">
-                        <label for="partTestEntities" class="col-xs-3">Phần của Đề Thi</label>
-                        <div class="col-xs-9">
+                    <div class="form-group row">
+                        <label for="partTestEntities" class="col-sm-3 col-form-label text-right">Phần của Đề Thi</label>
+                        <div class="col-sm-9">
                             <c:choose>
                                 <c:when test="${not empty partTests}">
-                                    <form:checkboxes
-
-                                            path="partTestEntities"
-                                            items="${partTests}"
-                                            itemLabel="partName"
-                                            itemValue="id"
-                                            class="form-control"/>
+                                    <div class="form-check">
+                                        <form:checkboxes
+                                                path="partTestEntities"
+                                                items="${partTests}"
+                                                itemLabel="partName"
+                                                itemValue="id"
+                                                class="form-check-input"
+                                        />
+                                    </div>
                                 </c:when>
                                 <c:otherwise>
-                                    <p>Hiện chưa có phần nào. Vui lòng tạo phần mới.</p>
+                                    <div class="alert alert-warning">
+                                        Hiện chưa có phần nào. Vui lòng tạo phần mới.
+                                    </div>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -122,21 +126,39 @@
 </div><!-- /.main-content -->
 
 <script>
-    $('#btnAddOrUpdateTest').click(function () {
+    const btn = document.getElementById("btnAddOrUpdateTest");
+
+    btn.addEventListener("click", function () {
         var formData = $('#form-edit').serializeArray();
         var json = {};
 
-        $.each(formData, function (i, field) {
-            json[field.name] = field.value;
+        formData.forEach(function (field) {
+            // Bỏ qua trường _partTestEntities
+            if (!field.name.startsWith("_")) {
+                if (field.name === "partTestEntities") {
+                    // Nếu là checkbox, thêm vào mảng và chuyển giá trị thành Long
+                    if (!json[field.name]) json[field.name] = [];
+                    json[field.name].push(parseInt(field.value)); // Chuyển thành số nguyên (Long)
+                } else {
+                    // Kiểm tra nếu là trường id thì chuyển thành Long
+                    if (field.name === "id" || field.name === "numberOfParticipants") {
+                        json[field.name] = field.value ? parseInt(field.value) : null;
+                    } else {
+                        json[field.name] = field.value;
+                    }
+                }
+            }
         });
 
         btnAddOrUpdateTest(json);
     });
 
+
+
     const btnAddOrUpdateTest = (json) => {
         $.ajax({
             url: "/api/tests",
-            type: "POST",
+            type: "POST", // Đảm bảo đây là POST
             data: JSON.stringify(json),
             contentType: "application/json",
             dataType: "json",

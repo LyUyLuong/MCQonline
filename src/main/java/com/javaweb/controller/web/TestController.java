@@ -1,6 +1,7 @@
 package com.javaweb.controller.web;
 
 
+import com.javaweb.converter.TestConverter;
 import com.javaweb.converter.UserConverter;
 import com.javaweb.entity.*;
 import com.javaweb.enums.TestType;
@@ -47,6 +48,8 @@ public class TestController {
 
     @Autowired
     UserConverter userConverter;
+    @Autowired
+    private TestConverter testConverter;
 
     @GetMapping(value = "/test")
     public ModelAndView getAllTests() {
@@ -63,8 +66,9 @@ public class TestController {
         ModelAndView mav = new ModelAndView("web/tests/detail");
 
         TestDTO test = testService.getTestById(id);
+        TestEntity testEntity = testConverter.toEntity(test);
 
-        List<PartTestEntity> partTestEntities = test.getPartTestEntities();
+        List<PartTestEntity> partTestEntities = testEntity.getPartTestEntities();
 
         Map<PartTestEntity, List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
 
@@ -86,7 +90,9 @@ public class TestController {
 
         TestDTO test = testService.getTestById(id);
 
-        List<PartTestEntity> partTestEntities = test.getPartTestEntities();
+        TestEntity testEntity = testConverter.toEntity(test);
+
+        List<PartTestEntity> partTestEntities = testEntity.getPartTestEntities();
 
         Map<PartTestEntity, List<QuestionTestEntity>> questionTestEntities = new HashMap<>();
 
@@ -118,7 +124,9 @@ public class TestController {
         TestDTO test = testService.getTestById(id);
 
         // Lấy danh sách các phần (parts)
-        List<PartTestEntity> partTestEntities = test.getPartTestEntities();
+        TestEntity testEntity = testConverter.toEntity(test);
+
+        List<PartTestEntity> partTestEntities = testEntity.getPartTestEntities();
 
         // Danh sách các phần được chọn
         List<PartTestEntity> getPartTestEntities = new ArrayList<>();

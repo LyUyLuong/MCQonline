@@ -5,6 +5,7 @@ import com.javaweb.converter.TestConverter;
 import com.javaweb.converter.UserConverter;
 import com.javaweb.entity.*;
 import com.javaweb.enums.TestType;
+import com.javaweb.model.dto.PartTestDTO;
 import com.javaweb.model.dto.ResultDTO;
 import com.javaweb.model.dto.TestDTO;
 import com.javaweb.model.dto.UserDTO;
@@ -168,7 +169,8 @@ public class ResultService implements IResultService {
             }
         }
         else {
-            for(PartTestEntity partTestEntity : testDTO.getPartTestEntities()){
+            TestEntity testEntity = testConverter.toEntity(testDTO);
+            for(PartTestEntity partTestEntity : testEntity.getPartTestEntities()){
                 ResultHavePartsEntity resultHavePartsEntity = new ResultHavePartsEntity();
                 resultHavePartsEntity.setResult(resultEntity);
                 resultHavePartsEntity.setPartTest(partTestEntity);
