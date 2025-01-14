@@ -177,12 +177,14 @@ public class TestController {
         TestDTO test = testService.getTestById(id);
         ResultEntity result = resultService.getOneResult(idresult);
         if (result == null) {
-            return new ModelAndView("/web/errors/NotFound");
+            return new ModelAndView("web/errors/NotFound").addObject("isErrorPage", true);
+
         }
 
         String testBelongTo = result.getUserEntity().getUserName();
         if (!currentUser.equals(testBelongTo)) {
-            return new ModelAndView("/web/errors/NotFound");
+            return new ModelAndView("web/errors/NotFound").addObject("isErrorPage", true);
+
         }
 
         List<UserAnswerEntity> userAnswerEntities = userAnswerService.getUserAnswers(result);

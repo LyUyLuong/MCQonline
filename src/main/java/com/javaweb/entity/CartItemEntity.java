@@ -3,21 +3,18 @@ package com.javaweb.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Getter
 @Setter
 @Entity
 public class CartItemEntity extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", nullable = false)
     private CartEntity cart;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private CourseEntity course;
 
@@ -25,6 +22,6 @@ public class CartItemEntity extends BaseEntity {
     private Integer quantity;
 
     @Column(name = "price")
-    private Double price; // Giá tại thời điểm thêm vào giỏ hàng
+    private Double price;
 }
 

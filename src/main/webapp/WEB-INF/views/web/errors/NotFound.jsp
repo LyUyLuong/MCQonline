@@ -15,9 +15,10 @@
 <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
     <h1 class="display-1 text-primary fw-bold">404</h1>
     <p class="lead text-muted">Rất tiếc! Trang bạn tìm kiếm không tồn tại.</p>
-    <a href="/" class="btn btn-primary mt-3">
+    <a href="<%= request.getContextPath() %>/" class="">
         <i class="bi bi-arrow-left"></i> Quay lại trang chủ
     </a>
+
 </div>
 
 <!-- Bootstrap Icons (optional) -->

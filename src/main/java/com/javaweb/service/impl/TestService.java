@@ -50,7 +50,9 @@ public class TestService implements ITestService {
 
     @Override
     public TestDTO getTestById(Long id) {
-        return testConverter.toDTO(testRepository.findById(id).get());
+        return testRepository.findById(id)
+                .map(testConverter::toDTO)
+                .orElse(null);
     }
 
     @Override

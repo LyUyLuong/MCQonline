@@ -18,12 +18,16 @@
 </head>
 <body>
 	<!-- Navigation -->
-	<%@ include file="/common/web/header.jsp" %>
+	<c:if test="${not isErrorPage}">
+        <%@ include file="/common/web/header.jsp" %>
+    </c:if>
 
 	<dec:body/>
 
 	<!-- Footer -->
-	<%@ include file="/common/web/footer.jsp" %>
+	<c:if test="${not isErrorPage}">
+        <%@ include file="/common/web/footer.jsp" %>
+    </c:if>
 
 	<!-- Bootstrap core JavaScript -->
 	<script src="${pageContext.request.contextPath}/web/vendor/jquery/jquery.min.js"></script>

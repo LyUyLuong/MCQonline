@@ -19,6 +19,20 @@
 						</a>
 					</li>
 				</ul>
+				<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+					<li class="nav-item">
+						<a class="nav-link" href="/courses">
+							Các khóa học
+						</a>
+					</li>
+				</ul>
+				<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+					<li class="nav-item">
+						<a class="nav-link" href="/cart">
+							Giỏ hàng
+						</a>
+					</li>
+				</ul>
 				<ul class="navbar-nav">
 					<security:authorize access="isAnonymous()">
 						<li class="nav-item"><a class="nav-link" href="<c:url value='/login'/>">Đăng nhập</a></li>
