@@ -1,11 +1,18 @@
 package com.javaweb.entity;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 public class OrderEntity extends BaseEntity {
 
     @ManyToOne
@@ -25,5 +32,5 @@ public class OrderEntity extends BaseEntity {
     private String paymentMethod; // "CASH", "ONLINE"
 
     @Column(name = "order_date")
-    private LocalDateTime orderDate;
+    private Date orderDate;
 }
