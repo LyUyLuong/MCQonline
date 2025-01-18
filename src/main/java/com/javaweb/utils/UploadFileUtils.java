@@ -11,15 +11,17 @@ import java.io.IOException;
 public class UploadFileUtils {
 
     public void writeOrUpdate(String path, byte[] bytes) {
-        path = "C://home/office" + path;
         File file = new File(StringUtils.substringBeforeLast(path, "/"));
-        if (!file.exists()) {
-            file.mkdir();
+        if (!file.exists() && !file.mkdirs()) {
+            throw new RuntimeException("Không thể tạo thư mục: " + file.getPath());
         }
+
         try (FileOutputStream fop = new FileOutputStream(path)) {
             fop.write(bytes);
+            System.out.println("Ghi file thành công: " + path);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi ghi file: " + path, e);
         }
     }
+
 }

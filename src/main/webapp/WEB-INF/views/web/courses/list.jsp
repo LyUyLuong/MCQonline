@@ -14,7 +14,13 @@
         <c:forEach var="course" items="${courses}">
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <img class="card-img-top" src="${course.image}" alt="${course.name}">
+                    <c:if test="${not empty course.image}">
+                        <c:set var="imagePath" value="${course.image}"/>
+                        <img src="/repository${course.image}" id="viewImage" width="200px" height="150" style="margin-top: 50px">
+                    </c:if>
+                    <c:if test="${empty course.image}">
+                        <img src="/repository/course/default.png" id="viewImage" width="200px" height="150" style="margin-top: 50px">
+                    </c:if>
                     <div class="card-body">
                         <h5 class="card-title">${course.name}</h5>
                         <p class="card-text">${course.description}</p>

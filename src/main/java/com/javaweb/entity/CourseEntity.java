@@ -22,10 +22,12 @@ public class CourseEntity extends BaseEntity {
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private CategoryEntity category;
+    @Column(name = "category")
+    private String category;
 
     @Column(name = "image")
     private String image; // Đường dẫn hình ảnh khóa học
+
+    @Column(name ="status")
+    private String status;
 }
